@@ -27,7 +27,7 @@ use agb::include_font;
 use alloc::boxed::Box;
 use alloc::format;
 
-const LEVEL_LOADING_SCREEN_WAIT: i32 = 20;
+const LEVEL_LOADING_SCREEN_WAIT: i32 = 5;
 
 agb::include_background_gfx!(
     games, "2ce8f4",
@@ -66,11 +66,11 @@ pub fn main(mut agb: agb::Gba) -> ! {
     world_display.commit(&mut vram);
     world_display.show();
 
-    splash_screen::show_splash_screen(
-        splash_screen::SplashScreen::Start,
-        &mut splash_screen,
-        &mut vram,
-    );
+    // splash_screen::show_splash_screen(
+    //     splash_screen::SplashScreen::Start,
+    //     &mut splash_screen,
+    //     &mut vram,
+    // );
 
     loop {
         world_display.commit(&mut vram);
@@ -171,9 +171,13 @@ pub fn main(mut agb: agb::Gba) -> ! {
                         // );
 
                         level.dead_start();
-                        while level.dead_update(&object) {
-                            vblank.wait_for_vblank();
+
+                        for i in 0..=8 {
+                            level.dead_update(&object, i);
                             object.commit();
+                            if i != 5 {
+                                delay(&vblank, 7);
+                            }
                         }
 
                         break;
@@ -205,5 +209,11 @@ pub fn main(mut agb: agb::Gba) -> ! {
 
     fn tile_index_math(y: i32, x: i32, width: i32) -> usize {
         (y * width as i32 + x) as usize
+    }
+
+    fn delay(vblank: &agb::interrupt::VBlank, frames: u32) {
+        for _ in 0..frames {
+            vblank.wait_for_vblank();
+        }
     }
 }

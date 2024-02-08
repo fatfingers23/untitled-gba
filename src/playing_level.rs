@@ -1,6 +1,9 @@
 use crate::level::Level;
 use crate::map::Map;
 use crate::player::Player;
+use crate::sprites::{
+    WARRIOR_DEAD_END_ANIMATION, WARRIOR_DEAD_START, WARRIOR_DEAD_START_ANIMATION,
+};
 use crate::types::{FixedNumberType, TILE_SIZE};
 use agb::display::object::OamManaged;
 use agb::display::tiled::{InfiniteScrolledMap, VRamManager};
@@ -92,19 +95,28 @@ impl<'a, 'b> PlayingLevel<'a, 'b> {
         self.player.warrior.sprite.set_priority(Priority::P0);
     }
 
-    pub fn dead_update(&mut self, controller: &'a OamManaged) -> bool {
+    /// Controls mostly the dead animation while *dying*
+    pub fn dead_update(&mut self, controller: &'a OamManaged, animation_frame: usize) {
         self.timer += 1;
-        //
-        // let frame = PLAYER_DEATH.animation_sprite(self.timer as usize / 8);
-        // let sprite = controller.sprite(frame);
-        //
-        self.player.warrior.velocity += (0.into(), FixedNumberType::new(1) / 32).into();
-        self.player.warrior.position += self.player.warrior.velocity;
-        // self.player.wizard.sprite.set_sprite(sprite);
-        //
-        // self.player.wizard.commit_position(self.background.position);
-        //
-        self.player.warrior.position.y - self.background.position.y < (HEIGHT + 8).into()
+        if animation_frame <= 4 {
+            let start_frame = WARRIOR_DEAD_START_ANIMATION.animation_sprite(animation_frame);
+            self.player
+                .warrior
+                .sprite
+                .set_sprite(controller.sprite(start_frame));
+            self.player
+                .warrior
+                .commit_position(self.background.position);
+        } else {
+            let frame = WARRIOR_DEAD_END_ANIMATION.animation_sprite(animation_frame);
+            self.player
+                .warrior
+                .sprite
+                .set_sprite(controller.sprite(frame));
+            self.player
+                .warrior
+                .commit_position(self.background.position - (0, 15).into());
+        }
     }
 
     pub fn update_frame(

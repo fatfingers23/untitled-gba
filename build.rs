@@ -2,10 +2,17 @@ use serde::Deserialize;
 
 const LEVELS: &[&str] = &["level_1", "level_2"];
 
-fn main() {
-    let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR environment variable must be specified");
+// Work-around to allow console output from build script.
+macro_rules! p {
+    ($($tokens: tt)*) => {
+        println!("cargo:warning={}", format!($($tokens)*))
+    }
+}
 
-    // tiled_export::export_tilemap(&out_dir).expect("Failed to export tilemap");
+fn main() {
+    p!("Running build script");
+
+    let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR environment variable must be specified");
     for &level in LEVELS {
         tiled_export::export_level(&out_dir, level).expect("Failed to export level");
     }

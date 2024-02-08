@@ -1,9 +1,7 @@
-# AGBRS template
+# Untitled GBA Game for GBA Jam Week 2024
 
-## A basic template example for agb projects
+Just a simple side scrolling game for the GBA to learn more about agbrs and lower level game development. 
 
-This makes getting started with a new project for the Game Boy Advance in rust really simple, by providing
-all the boiler plate files for you.
 
 ## Building
 
@@ -34,7 +32,7 @@ or in release mode (recommended for the final version to ship to players)
 cargo build --release
 ```
 
-The resulting file will be in `target/thumbv4t-none-eabi/debug/<your game>` or `target/thumbv4t-none-eabi/release/<your game>` depending on
+The resulting file will be in `target/thumbv4t-none-eabi/debug/untitled-gba-game` or `target/thumbv4t-none-eabi/release/untitled-gba-game` depending on
 whether you did a release or debug build.
 
 If you have `mgba-qt` in your path, you will be able to run your game with
@@ -63,5 +61,5 @@ running on the real thing.
 First build the binary in release mode using the instructions above, then do the following:
 
 ```sh
-agb-gbafix target/thumbv4t-none-eabi/release/<your game> -o <your game>.gba
+agb-gbafix target/thumbv4t-none-eabi/release/untitled-gba-game -o untitled-gba-game.gba
 ```

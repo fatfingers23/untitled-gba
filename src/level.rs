@@ -63,13 +63,13 @@ impl<'a> Level<'a> {
         }
         let foreground_collision = foreground_tile_property == tile;
 
-        if background_collision {
-            println!("Background collision  ({}, {})", tile_background, tile);
-        }
-
-        if foreground_collision {
-            println!("Foreground collision  ({}, {})", tile_foreground, tile);
-        }
+        // if background_collision {
+        //     println!("Background collision  ({}, {})", tile_background, tile);
+        // }
+        //
+        // if foreground_collision {
+        //     println!("Foreground collision  ({}, {})", tile_foreground, tile);
+        // }
 
         foreground_collision || background_collision
     }
