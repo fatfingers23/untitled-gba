@@ -12,8 +12,6 @@ use agb::{input, println};
 const X_VELOCITY: i32 = 2;
 pub struct Player<'a> {
     pub warrior: Entity<'a>,
-    pub hat: Entity<'a>,
-    // pub hat_state: HatState,
     pub hat_left_range: bool,
     pub hat_slow_counter: i32,
     pub warrior_frame: u8,
@@ -27,27 +25,15 @@ pub struct Player<'a> {
 impl<'a> Player<'a> {
     pub fn new(controller: &'a OamManaged, start_position: Vector2D<FixedNumberType>) -> Self {
         let mut warrior = Entity::new(controller, (6, 16_u16).into());
-        let mut hat = Entity::new(controller, (6_u16, 6_u16).into());
         //
         warrior
             .sprite
             .set_sprite(controller.sprite(WARRIOR_IDLE.sprites().first().unwrap()));
-        // hat.sprite
-        //     .set_sprite(controller.sprite(HAT_SPIN_1.sprite(0)));
-        //
-        warrior.sprite.show();
-        // hat.sprite.show();
-        //
-        // hat.sprite.set_z(-1);
-        //
         warrior.position = start_position + (0, -7).into();
-        // hat.position = start_position - (0, 10).into();
 
         Player {
             warrior,
-            hat,
             hat_slow_counter: 0,
-            // hat_state: HatState::OnHead,
             hat_left_range: false,
             warrior_frame: 0,
             num_recalls: 0,

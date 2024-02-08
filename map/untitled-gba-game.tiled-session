@@ -3,11 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "level_2/level_2_map.tmx",
+    "activeFile": "level_1/level_1_map.tmx",
     "expandedProjectPaths": [
-        ".",
         "level_2",
-        "level_1"
+        "level_1",
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -110,8 +110,8 @@
             "scale": 4.0779,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 119.91466195836094,
-                "y": 78.59437455553103
+                "x": 84.11192035116115,
+                "y": 72.21854385835849
             }
         },
         "level_2/level_2_background_tile_set.tsx": {
@@ -126,7 +126,7 @@
             "scale": 3.281458333333333,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 278.68706748777856,
+                "x": 164.40860897720785,
                 "y": 80.29966351342773
             }
         },
@@ -146,15 +146,16 @@
     "openFiles": [
         "level_2/level_2_map.tmx",
         "level_2/level_2_foreground_tile_set.tsx",
-        "level_2/level_2_background_tile_set.tsx"
+        "level_2/level_2_background_tile_set.tsx",
+        "level_1/level_1_map.tmx"
     ],
     "project": "untitled-gba-game.tiled-project",
     "recentFiles": [
-        "level_2/level_2_background_tile_set.tsx",
-        "level_2/level_2_foreground_tile_set.tsx",
         "level_2/level_2_map.tmx",
-        "level_1/level_1_background_tile_set.tsx",
+        "level_2/level_2_foreground_tile_set.tsx",
+        "level_2/level_2_background_tile_set.tsx",
         "level_1/level_1_map.tmx",
+        "level_1/level_1_background_tile_set.tsx",
         "level_1/level_1_foreground_tile_set.json",
         "level_1/level_1_foreground_tile_set.tsx",
         "level_1/level_1_background_tile_set.json",
