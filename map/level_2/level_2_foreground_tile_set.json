@@ -1,0 +1,14 @@
+{ "columns":36,
+ "image":"..\/..\/gfx\/tileSets\/level_2\/level_2_foreground.png",
+ "imageheight":336,
+ "imagewidth":288,
+ "margin":0,
+ "name":"level_2_foreground_tile_set.json",
+ "spacing":0,
+ "tilecount":1512,
+ "tiledversion":"1.10.2",
+ "tileheight":8,
+ "tilewidth":8,
+ "type":"tileset",
+ "version":"1.10"
+}
