@@ -1,9 +1,9 @@
+use crate::entities::enemies;
 use crate::level::Level;
 use crate::map::Map;
-use crate::player::Player;
-use crate::sprites::{WARRIOR_DEAD_END_ANIMATION, WARRIOR_DEAD_START_ANIMATION};
+use crate::player::{Player, WARRIOR_DEAD_END_ANIMATION, WARRIOR_DEAD_START_ANIMATION};
 use crate::types::{FixedNumberType, TILE_SIZE};
-use agb::display::object::OamManaged;
+use agb::display::object::{Graphics, OamManaged, Tag};
 use agb::display::tiled::{InfiniteScrolledMap, VRamManager};
 use agb::display::{Priority, HEIGHT, WIDTH};
 use agb::fixnum::Vector2D;
@@ -15,7 +15,7 @@ pub struct PlayingLevel<'a, 'b> {
     pub background: Map<'a, 'b>,
     pub input: ButtonController,
     pub player: Player<'a>,
-    // enemies: [enemies::Enemy<'a>; 16],
+    enemies: [enemies::Enemy<'a>; 16],
 }
 
 pub enum UpdateState {
@@ -32,17 +32,12 @@ impl<'a, 'b> PlayingLevel<'a, 'b> {
         foreground: &'a mut InfiniteScrolledMap<'b>,
         input: ButtonController,
     ) -> Self {
-        // let mut e: [enemies::Enemy<'a>; 16] = Default::default();
-        // let mut enemy_count = 0;
-        // for &slime in level.slimes {
-        //     e[enemy_count] = enemies::Enemy::new_slime(object_control, slime.into());
-        //     enemy_count += 1;
-        // }
-        //
-        // for &snail in level.snails {
-        //     e[enemy_count] = enemies::Enemy::new_snail(object_control, snail.into());
-        //     enemy_count += 1;
-        // }
+        let mut e: [enemies::Enemy<'a>; 16] = Default::default();
+        let mut enemy_count = 0;
+        for &boar in level.boars {
+            e[enemy_count] = enemies::Enemy::new_boar(object_control, boar.into());
+            enemy_count += 1;
+        }
 
         let start_pos: Vector2D<FixedNumberType> = level.start_pos.into();
 
@@ -68,6 +63,7 @@ impl<'a, 'b> PlayingLevel<'a, 'b> {
             },
             player: Player::new(object_control, start_pos),
             input,
+            enemies: e,
         }
     }
 
@@ -127,19 +123,17 @@ impl<'a, 'b> PlayingLevel<'a, 'b> {
         self.player
             .update_frame(&self.input, controller, self.timer, self.background.level);
 
-        // for enemy in self.enemies.iter_mut() {
-        //     match enemy.update(
-        //         controller,
-        //         self.background.level,
-        //         self.player.wizard.position,
-        //         self.player.hat_state,
-        //         self.timer,
-        //         sfx_player,
-        //     ) {
-        //         enemies::EnemyUpdateState::KillPlayer => player_dead = true,
-        //         enemies::EnemyUpdateState::None => {}
-        //     }
-        // }
+        for enemy in self.enemies.iter_mut() {
+            match enemy.update(
+                controller,
+                self.background.level,
+                self.player.warrior.position,
+                self.timer,
+            ) {
+                enemies::EnemyUpdateState::KillPlayer => player_dead = true,
+                enemies::EnemyUpdateState::None => {}
+            }
+        }
 
         self.background.position = self.get_next_map_position();
         self.background.commit_position(vram);
@@ -150,9 +144,9 @@ impl<'a, 'b> PlayingLevel<'a, 'b> {
 
         // self.player.hat.commit_position(self.background.position);
 
-        // for enemy in self.enemies.iter_mut() {
-        //     enemy.commit(self.background.position);
-        // }
+        for enemy in self.enemies.iter_mut() {
+            enemy.commit(self.background.position);
+        }
 
         player_dead |= self
             .player

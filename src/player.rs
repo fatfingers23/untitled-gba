@@ -1,17 +1,31 @@
 use crate::entities::entity::Entity;
 use crate::level::Level;
 use crate::player::Action::{DoubleJump, Idle};
-use crate::sprites::{
-    WARRIOR_ATTACK_ANIMATION, WARRIOR_IDLE, WARRIOR_IDLE_ANIMATION, WARRIOR_JUMP_ANIMATION,
-    WARRIOR_RUN_ANIMATION,
-};
 use crate::types::FixedNumberType;
-use agb::display::object::OamManaged;
+use agb::display::object::{Graphics, OamManaged, Tag};
 use agb::fixnum::Vector2D;
 use agb::input;
 use agb::input::{Button, ButtonController};
 
 const X_VELOCITY: i32 = 2;
+
+pub const WARRIOR_IDLE: &Graphics = agb::include_aseprite!("gfx/warrior/Idle.aseprite");
+pub const WARRIOR_IDLE_ANIMATION: &Tag = WARRIOR_IDLE.tags().get("idle");
+
+pub const WARRIOR_RUN: &Graphics = agb::include_aseprite!("gfx/warrior/Run.aseprite");
+pub const WARRIOR_RUN_ANIMATION: &Tag = WARRIOR_RUN.tags().get("running");
+
+pub const WARRIOR_JUMP: &Graphics = agb::include_aseprite!("gfx/warrior/Jump.aseprite");
+pub const WARRIOR_JUMP_ANIMATION: &Tag = WARRIOR_JUMP.tags().get("Loop");
+
+pub const WARRIOR_DEAD_START: &Graphics = agb::include_aseprite!("gfx/warrior/DeadStart.aseprite");
+pub const WARRIOR_DEAD_START_ANIMATION: &Tag = WARRIOR_DEAD_START.tags().get("dead");
+
+pub const WARRIOR_DEAD_END: &Graphics = agb::include_aseprite!("gfx/warrior/DeadEnd.aseprite");
+pub const WARRIOR_DEAD_END_ANIMATION: &Tag = WARRIOR_DEAD_END.tags().get("dead");
+
+pub const WARRIOR_ATTACK: &Graphics = agb::include_aseprite!("gfx/warrior/NewAttack.aseprite");
+pub const WARRIOR_ATTACK_ANIMATION: &Tag = WARRIOR_ATTACK.tags().get("attack");
 
 #[derive(Debug, PartialEq)]
 pub enum Action {

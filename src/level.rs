@@ -27,6 +27,7 @@ pub struct Level<'a> {
     pub background_collision: &'static [u32],
     pub foreground_collision: &'static [u32],
     pub slimes: &'static [(i32, i32)],
+    pub boars: &'static [(i32, i32)],
     pub snails: &'static [(i32, i32)],
     pub enemy_stops: &'static [(i32, i32)],
     pub start_pos: (i32, i32),

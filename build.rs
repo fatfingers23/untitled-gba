@@ -143,6 +143,7 @@ mod tiled_export {
 
         let mut snails = vec![];
         let mut slimes = vec![];
+        let mut boars = vec![];
         let mut enemy_stops = vec![];
         let mut player_start = None;
 
@@ -150,6 +151,7 @@ mod tiled_export {
             match object_type.as_str() {
                 "Snail Spawn" => snails.push((x, y)),
                 "Slime Spawn" => slimes.push((x, y)),
+                "Boar Spawn" => boars.push((x, y)),
                 "Player Start" => player_start = Some((x, y)),
                 "Enemy Stop" => enemy_stops.push((x, y)),
                 _ => panic!("Unknown object type {object_type}"),
@@ -168,6 +170,11 @@ mod tiled_export {
             .map(|slime| format!("({}, {})", slime.0, slime.1))
             .collect::<Vec<_>>()
             .join(", ");
+        let boars_str = boars
+            .iter()
+            .map(|slime| format!("({}, {})", slime.0, slime.1))
+            .collect::<Vec<_>>()
+            .join(", ");
         let enemy_stop_str = enemy_stops
             .iter()
             .map(|enemy_stop| format!("({}, {})", enemy_stop.0, enemy_stop.1))
@@ -182,6 +189,7 @@ mod tiled_export {
             &mut writer,
             "const SLIMES: &[(i32, i32)] = &[{slimes_str}];",
         )?;
+        writeln!(&mut writer, "const BOARS: &[(i32, i32)] = &[{boars_str}];",)?;
         writeln!(
             &mut writer,
             "const ENEMY_STOPS: &[(i32, i32)] = &[{enemy_stop_str}];",
@@ -223,6 +231,7 @@ mod tiled_export {
                     enemy_stops: ENEMY_STOPS,
                     slimes: SLIMES,
                     snails: SNAILS,
+                    boars: BOARS,
                     start_pos: START_POS,
                     background_tile_set: games::{level_file}_background.tiles,
                     background_tile_settings: games::{level_file}_background.tile_settings,

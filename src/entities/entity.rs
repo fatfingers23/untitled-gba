@@ -1,5 +1,5 @@
 use crate::level::Level;
-use crate::sprites::WARRIOR_IDLE;
+use crate::player::WARRIOR_IDLE;
 use crate::types::FixedNumberType;
 use agb::display::object::{OamManaged, Object};
 use agb::display::{Priority, HEIGHT, WIDTH};

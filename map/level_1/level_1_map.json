@@ -80,6 +80,18 @@
                  "width":0,
                  "x":19.7474,
                  "y":111.6
+                }, 
+                {
+                 "height":0,
+                 "id":6,
+                 "name":"Boar Spawn",
+                 "point":true,
+                 "rotation":0,
+                 "type":"Boar Spawn",
+                 "visible":true,
+                 "width":0,
+                 "x":92.6947693665857,
+                 "y":113.293607003605
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -88,7 +100,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":6,
+ "nextobjectid":7,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",

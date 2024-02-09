@@ -11,7 +11,6 @@ mod map;
 mod player;
 mod playing_level;
 mod splash_screen;
-mod sprites;
 mod types;
 
 extern crate alloc;
