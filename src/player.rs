@@ -4,8 +4,8 @@ use crate::player::PlayerAction::{DoubleJump, Idle};
 use crate::types::FixedNumberType;
 use agb::display::object::{Graphics, OamManaged, Tag};
 use agb::fixnum::Vector2D;
-use agb::input;
 use agb::input::{Button, ButtonController};
+use agb::{input, println};
 
 const X_VELOCITY: i32 = 2;
 
@@ -31,6 +31,7 @@ pub const WARRIOR_ATTACK_ANIMATION: &Tag = WARRIOR_ATTACK.tags().get("attack");
 pub enum PlayerAction {
     Idle,
     Run,
+    Dash,
     Jump,
     DoubleJump,
     Attack,
@@ -83,6 +84,11 @@ impl<'a> Player<'a> {
         timer: i32,
         level: &Level,
     ) {
+        //TODO not sure how to do a double dash. Maybe count a few 0s before -1 or 1
+        //OR could just do longer. GUess i could do like holding down r or attack?
+        let x = input.x_tri() as i32;
+        println!("Input x {x}");
+
         //     // throw or recall
         //     if input.is_just_pressed(Button::A) {
         //         if self.hat_state == HatState::OnHead {
