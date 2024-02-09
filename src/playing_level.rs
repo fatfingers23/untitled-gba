@@ -1,17 +1,13 @@
 use crate::level::Level;
 use crate::map::Map;
 use crate::player::Player;
-use crate::sprites::{
-    WARRIOR_DEAD_END_ANIMATION, WARRIOR_DEAD_START, WARRIOR_DEAD_START_ANIMATION,
-};
+use crate::sprites::{WARRIOR_DEAD_END_ANIMATION, WARRIOR_DEAD_START_ANIMATION};
 use crate::types::{FixedNumberType, TILE_SIZE};
 use agb::display::object::OamManaged;
 use agb::display::tiled::{InfiniteScrolledMap, VRamManager};
 use agb::display::{Priority, HEIGHT, WIDTH};
 use agb::fixnum::Vector2D;
 use agb::input::ButtonController;
-use agb::println;
-use alloc::vec::Vec;
 use UpdateState::{Complete, Dead, Normal};
 
 pub struct PlayingLevel<'a, 'b> {

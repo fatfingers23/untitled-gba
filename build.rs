@@ -1,5 +1,3 @@
-use serde::Deserialize;
-
 const LEVELS: &[&str] = &["level_1", "level_2"];
 
 // Work-around to allow console output from build script.

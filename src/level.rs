@@ -1,6 +1,5 @@
 use agb::display::tiled::{TileSet, TileSetting};
 use agb::fixnum::Vector2D;
-use agb::println;
 
 pub mod map_tiles {
     use super::Level;

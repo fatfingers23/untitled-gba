@@ -8,8 +8,8 @@ use crate::sprites::{
 use crate::types::FixedNumberType;
 use agb::display::object::OamManaged;
 use agb::fixnum::Vector2D;
+use agb::input;
 use agb::input::{Button, ButtonController};
-use agb::{input, println};
 
 const X_VELOCITY: i32 = 2;
 
@@ -174,7 +174,7 @@ impl<'a> Player<'a> {
             }
         } else if self.warrior.velocity.y > FixedNumberType::new(1) / 16 {
             // going down
-            let offset = if self.warrior.velocity.y * 2 > 3.into() {
+            let _offset = if self.warrior.velocity.y * 2 > 3.into() {
                 (timer / 4) as usize
             } else {
                 // Don't flap beard unless going quickly

@@ -1,21 +1,19 @@
-use crate::display_text;
 use agb::display::tiled::{RegularMap, TiledMap, VRamManager};
-use alloc::format;
 
 agb::include_background_gfx!(splash_screens,
     splash => deduplicate "gfx/Background.png",
 );
 
-pub enum SplashScreen {
+pub enum _SplashScreen {
     Start,
     End,
 }
 
-pub fn show_splash_screen(which: SplashScreen, map: &mut RegularMap, vram: &mut VRamManager) {
+pub fn _show_splash_screen(which: _SplashScreen, map: &mut RegularMap, vram: &mut VRamManager) {
     map.set_scroll_pos((0i16, 0i16).into());
     let tile_data = match which {
-        SplashScreen::Start => splash_screens::splash,
-        SplashScreen::End => splash_screens::splash,
+        _SplashScreen::Start => splash_screens::splash,
+        _SplashScreen::End => splash_screens::splash,
     };
 
     let vblank = agb::interrupt::VBlank::get();

@@ -1,10 +1,9 @@
 use crate::level::Level;
 use crate::sprites::WARRIOR_IDLE;
 use crate::types::FixedNumberType;
-use agb::display::object::{Graphics, OamManaged, Object};
+use agb::display::object::{OamManaged, Object};
 use agb::display::{Priority, HEIGHT, WIDTH};
-use agb::fixnum::{FixedNum, Vector2D};
-use agb::println;
+use agb::fixnum::Vector2D;
 
 pub struct Entity<'a> {
     pub sprite: Object<'a>,

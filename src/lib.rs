@@ -39,7 +39,7 @@ const FONT_14: Font = include_font!("font/pixelated.ttf", 14);
 pub fn main(mut agb: agb::Gba) -> ! {
     let (tiled, mut vram) = agb.display.video.tiled0();
     vram.set_background_palettes(games::PALETTES);
-    let mut splash_screen = tiled.background(
+    let mut _splash_screen = tiled.background(
         Priority::P0,
         RegularBackgroundSize::Background32x32,
         TileFormat::FourBpp,

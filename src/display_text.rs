@@ -1,14 +1,12 @@
 use crate::types::TILE_SIZE;
 use crate::FONT_14;
 use agb::display::{
-    tiled::{RegularMap, TileSet, TileSetting, VRamManager},
+    tiled::{RegularMap, VRamManager},
     HEIGHT, WIDTH,
 };
 use agb::fixnum::Vector2D;
 use alloc::string::String;
 use core::fmt::Write;
-
-pub const BLANK: usize = 704;
 
 pub fn write(map: &mut RegularMap, text: String, vram: &mut VRamManager) {
     let mut text_renderer = FONT_14.render_text(Vector2D::new(65, 0));
