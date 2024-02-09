@@ -1,6 +1,6 @@
 use crate::entities::entity::Entity;
 use crate::level::Level;
-use crate::player::Action::DoubleJump;
+use crate::player::Action::{DoubleJump, Idle};
 use crate::sprites::{
     WARRIOR_ATTACK_ANIMATION, WARRIOR_IDLE, WARRIOR_IDLE_ANIMATION, WARRIOR_JUMP_ANIMATION,
     WARRIOR_RUN_ANIMATION,
@@ -32,6 +32,8 @@ pub struct Player<'a> {
     pub facing: input::Tri,
     pub last_idle_frame: i32,
     pub times_last_attack_frame_displayed: i32,
+    /// Some sprites do not line up perfectly. Attack for instance does not
+    /// this lets you control it a bit without changing the Player's position
     pub sprite_off_set: Vector2D<FixedNumberType>,
     pub action: Action,
 }
@@ -67,8 +69,6 @@ impl<'a> Player<'a> {
         timer: i32,
         level: &Level,
     ) {
-        let mut any_movement = false;
-
         //     // throw or recall
         //     if input.is_just_pressed(Button::A) {
         //         if self.hat_state == HatState::OnHead {
@@ -114,25 +114,26 @@ impl<'a> Player<'a> {
         }
         self.is_on_ground = is_on_ground;
 
+        //On the ground
         if is_on_ground {
-            self.warrior.velocity.x += FixedNumberType::new(input.x_tri() as i32 * X_VELOCITY) / 16;
-            self.warrior.velocity = self.warrior.velocity * 54 / 64;
-
+            if self.action != Action::Attack {
+                self.warrior.velocity.x +=
+                    FixedNumberType::new(input.x_tri() as i32 * X_VELOCITY) / 16;
+                self.warrior.velocity = self.warrior.velocity * 54 / 64;
+            } else {
+                self.warrior.velocity = (0, 0).into();
+            }
             //Jump
             if input.is_just_pressed(Button::A) {
                 self.warrior.velocity.y = -FixedNumberType::new(3) / 2;
-                any_movement = true;
                 self.action = Action::Jump;
-                // sfx_player.jump();
-                // println!("jump")
             }
         } else {
             //Double jump
-            if self.action != Action::DoubleJump {
+            if self.action != DoubleJump {
                 if input.is_just_pressed(Button::A) {
                     self.warrior.velocity.y = -FixedNumberType::new(3) / 2;
                     self.action = DoubleJump;
-                    any_movement = true;
                 }
             }
             self.warrior.velocity.x += FixedNumberType::new(input.x_tri() as i32) / 64;
@@ -141,14 +142,12 @@ impl<'a> Player<'a> {
             let gravity = gravity / 16;
             self.warrior.velocity += gravity;
         }
-        //
         self.warrior.velocity = self.warrior.update_position(level);
 
+        //Running
         if self.warrior.velocity.x.abs() > 0.into() {
-            //Running
             let offset = (ping_pong(timer / 16, 4)) as usize;
             self.warrior_frame = offset as u8;
-            any_movement = true;
             let frame = WARRIOR_RUN_ANIMATION.animation_sprite(offset);
             let sprite = controller.sprite(frame);
             if self.action != Action::Attack {
@@ -157,8 +156,13 @@ impl<'a> Player<'a> {
             if self.action == Action::Idle {
                 self.action = Action::Run;
             }
+        } else {
+            if self.action != Action::Attack {
+                self.action = Action::Idle;
+            }
         }
-        //
+
+        // Set logic of jump sprite
         if self.warrior.velocity.y < -FixedNumberType::new(1) / 16 {
             // going up
             self.warrior_frame = 5;
@@ -178,30 +182,12 @@ impl<'a> Player<'a> {
             };
 
             self.warrior_frame = 0;
-
-            // let frame = FALLING.animation_sprite(offset);
-            // let sprite = controller.sprite(frame);
-
-            // self.warrior.sprite.set_sprite(sprite);
+            // Can set the sprite for falling here if we want one for up or down
         }
 
         if input.x_tri() != agb::input::Tri::Zero {
             self.facing = input.x_tri();
         }
-
-        //
-        //     let hat_base_tile = match self.num_recalls {
-        //         0 => HAT_SPIN_1,
-        //         1 => HAT_SPIN_2,
-        //         _ => HAT_SPIN_3,
-        //     };
-        //
-        //     let hat_resting_position = match self.warrior_frame {
-        //         1 | 2 => (0, 9).into(),
-        //         5 => (0, 10).into(),
-        //         _ => (0, 8).into(),
-        //     };
-        //
 
         match self.facing {
             agb::input::Tri::Negative => {
@@ -242,10 +228,10 @@ impl<'a> Player<'a> {
                 }
             }
             self.new_attack_frame(controller, animation_frame);
-            any_movement = true;
         }
 
-        if !any_movement && self.is_on_ground {
+        if self.action == Idle && self.is_on_ground {
+            self.sprite_off_set = (0, 0).into();
             self.action = Action::Idle;
             self.new_idle_frame(controller, timer);
         }
