@@ -1,6 +1,6 @@
 use crate::entities::entity::Entity;
 use crate::level::Level;
-use crate::player::Action::{DoubleJump, Idle};
+use crate::player::PlayerAction::{DoubleJump, Idle};
 use crate::types::FixedNumberType;
 use agb::display::object::{Graphics, OamManaged, Tag};
 use agb::fixnum::Vector2D;
@@ -28,7 +28,7 @@ pub const WARRIOR_ATTACK: &Graphics = agb::include_aseprite!("gfx/warrior/NewAtt
 pub const WARRIOR_ATTACK_ANIMATION: &Tag = WARRIOR_ATTACK.tags().get("attack");
 
 #[derive(Debug, PartialEq)]
-pub enum Action {
+pub enum PlayerAction {
     Idle,
     Run,
     Jump,
@@ -49,12 +49,12 @@ pub struct Player<'a> {
     /// Some sprites do not line up perfectly. Attack for instance does not
     /// this lets you control it a bit without changing the Player's position
     pub sprite_off_set: Vector2D<FixedNumberType>,
-    pub action: Action,
+    pub action: PlayerAction,
 }
 
 impl<'a> Player<'a> {
     pub fn new(controller: &'a OamManaged, start_position: Vector2D<FixedNumberType>) -> Self {
-        let mut warrior = Entity::new(controller, (6, 16_u16).into());
+        let mut warrior = Entity::new(controller, (16_u16, 16_u16).into());
         //
         warrior
             .sprite
@@ -72,7 +72,7 @@ impl<'a> Player<'a> {
             last_idle_frame: 0,
             times_last_attack_frame_displayed: 0,
             sprite_off_set: (0, 0).into(),
-            action: Action::Idle,
+            action: PlayerAction::Idle,
         }
     }
 
@@ -124,23 +124,25 @@ impl<'a> Player<'a> {
             .warrior
             .collision_at_point(level, self.warrior.position + (0, 1).into());
         if is_on_ground && !was_on_ground && self.warrior.velocity.y > 1.into() {
-            self.action = Action::Idle;
+            self.action = PlayerAction::Idle;
         }
         self.is_on_ground = is_on_ground;
 
         //On the ground
         if is_on_ground {
-            if self.action != Action::Attack {
-                self.warrior.velocity.x +=
-                    FixedNumberType::new(input.x_tri() as i32 * X_VELOCITY) / 16;
-                self.warrior.velocity = self.warrior.velocity * 54 / 64;
-            } else {
-                self.warrior.velocity = (0, 0).into();
-            }
+            self.warrior.velocity.x += FixedNumberType::new(input.x_tri() as i32 * X_VELOCITY) / 16;
+            self.warrior.velocity = self.warrior.velocity * 54 / 64;
+            // if self.action != PlayerAction::Attack {
+            //     self.warrior.velocity.x +=
+            //         FixedNumberType::new(input.x_tri() as i32 * X_VELOCITY) / 16;
+            //     self.warrior.velocity = self.warrior.velocity * 54 / 64;
+            // } else {
+            //     self.warrior.velocity = (0, 0).into();
+            // }
             //Jump
             if input.is_just_pressed(Button::A) {
                 self.warrior.velocity.y = -FixedNumberType::new(3) / 2;
-                self.action = Action::Jump;
+                self.action = PlayerAction::Jump;
             }
         } else {
             //Double jump
@@ -164,15 +166,15 @@ impl<'a> Player<'a> {
             self.warrior_frame = offset as u8;
             let frame = WARRIOR_RUN_ANIMATION.animation_sprite(offset);
             let sprite = controller.sprite(frame);
-            if self.action != Action::Attack {
+            if self.action != PlayerAction::Attack {
                 self.warrior.sprite.set_sprite(sprite);
             }
-            if self.action == Action::Idle {
-                self.action = Action::Run;
+            if self.action == PlayerAction::Idle {
+                self.action = PlayerAction::Run;
             }
         } else {
-            if self.action != Action::Attack {
-                self.action = Action::Idle;
+            if self.action != PlayerAction::Attack {
+                self.action = PlayerAction::Idle;
             }
         }
 
@@ -183,7 +185,7 @@ impl<'a> Player<'a> {
             let offset = (timer / 16) as usize;
             let frame = WARRIOR_JUMP_ANIMATION.animation_sprite(offset);
             let sprite = controller.sprite(frame);
-            if self.action != Action::Attack {
+            if self.action != PlayerAction::Attack {
                 self.warrior.sprite.set_sprite(sprite);
             }
         } else if self.warrior.velocity.y > FixedNumberType::new(1) / 16 {
@@ -215,16 +217,16 @@ impl<'a> Player<'a> {
 
         //Attack
         if input.is_just_pressed(Button::B) && self.is_on_ground {
-            if self.action != Action::Attack {
+            if self.action != PlayerAction::Attack {
                 if self.facing == agb::input::Tri::Positive {
                     self.sprite_off_set = (-16, 0).into();
                     // self.warrior.position = self.warrior.position - (16, 0).into();
                 }
             }
-            self.action = Action::Attack;
+            self.action = PlayerAction::Attack;
         }
 
-        if self.action == Action::Attack {
+        if self.action == PlayerAction::Attack {
             let offset = (timer / 16) as usize;
             let animation_length = WARRIOR_ATTACK_ANIMATION.sprites().len();
             let animation_frame = offset % animation_length;
@@ -234,7 +236,7 @@ impl<'a> Player<'a> {
 
                 //Delay to show last frame a few extra times
                 if self.times_last_attack_frame_displayed > 2 {
-                    self.action = Action::Idle;
+                    self.action = PlayerAction::Idle;
                     self.times_last_attack_frame_displayed = 0;
                     if self.facing == agb::input::Tri::Positive {
                         self.sprite_off_set = (0, 0).into();
@@ -246,7 +248,7 @@ impl<'a> Player<'a> {
 
         if self.action == Idle && self.is_on_ground {
             self.sprite_off_set = (0, 0).into();
-            self.action = Action::Idle;
+            self.action = PlayerAction::Idle;
             self.new_idle_frame(controller, timer);
         }
     }

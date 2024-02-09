@@ -1,5 +1,6 @@
 use crate::entities::entity::Entity;
 use crate::level::Level;
+use crate::player::{Player, PlayerAction};
 use crate::types::FixedNumberType;
 use agb::display::object::Graphics;
 use agb::{
@@ -9,6 +10,10 @@ use agb::{
 
 pub const BOAR_IDLE: &Graphics = agb::include_aseprite!("gfx/boar/Idle.aseprite");
 pub const BOAR_IDLE_ANIMATION: &Tag = BOAR_IDLE.tags().get("idle");
+
+pub const BOAR_HIT: &Graphics = agb::include_aseprite!("gfx/boar/Hit.aseprite");
+pub const BOAR_HIT_ANIMATION: &Tag = BOAR_HIT.tags().get("hit");
+
 // const SLIME_IDLE: &Tag = TAG_MAP.get("Slime Idle");
 // const SLIME_JUMP: &Tag = TAG_MAP.get("Slime Jump");
 // const SLIME_SPLAT: &Tag = TAG_MAP.get("Slime splat");
@@ -53,12 +58,13 @@ impl<'a> Enemy<'a> {
         controller: &'a OamManaged,
         level: &Level,
         player_pos: Vector2D<FixedNumberType>,
+        player_action: &PlayerAction,
         timer: i32,
     ) -> EnemyUpdateState {
         let update_state = match self {
             // Enemy::Slime(slime) => slime.update(controller, level, player_pos, timer),
             // Enemy::Snail(snail) => snail.update(controller, level, player_pos, timer),
-            Enemy::Boar(boar) => boar.update(controller, level, player_pos, timer),
+            Enemy::Boar(boar) => boar.update(controller, level, player_pos, &player_action, timer),
             Enemy::Empty => UpdateState::Nothing,
         };
 
@@ -129,7 +135,7 @@ pub struct Boar<'a> {
 impl<'a> Boar<'a> {
     fn new(object: &'a OamManaged, start_pos: Vector2D<FixedNumberType>) -> Self {
         let Boar = Boar {
-            enemy_info: EnemyInfo::new(object, start_pos, (14u16, 14u16).into()),
+            enemy_info: EnemyInfo::new(object, start_pos, (32u16, 16u16).into()),
             state: BoarState::Idle,
         };
 
@@ -141,10 +147,11 @@ impl<'a> Boar<'a> {
         controller: &'a OamManaged,
         level: &Level,
         player_pos: Vector2D<FixedNumberType>,
+        player_action: &PlayerAction,
         timer: i32,
     ) -> UpdateState {
         let player_has_collided =
-            (self.enemy_info.entity.position - player_pos).magnitude_squared() < (10 * 10).into();
+            (self.enemy_info.entity.position - player_pos).magnitude_squared() < (15 * 15).into();
 
         match self.state {
             BoarState::Idle => {
@@ -196,13 +203,13 @@ impl<'a> Boar<'a> {
                     // self.enemy_info.entity.sprite.set_sprite(sprite);
                 }
 
-                // if player_has_collided {
-                //     if hat_state == HatState::WizardTowards {
-                //         self.state = BoarState::Dying(timer);
-                //     } else {
-                //         return UpdateState::KillPlayer;
-                //     }
-                // }
+                if player_has_collided {
+                    if *player_action == PlayerAction::Attack {
+                        self.state = BoarState::Dying(timer);
+                    } else {
+                        return UpdateState::KillPlayer;
+                    }
+                }
             }
             BoarState::Dying(dying_start_frame) => {
                 if timer == dying_start_frame + 1 {
@@ -216,10 +223,10 @@ impl<'a> Boar<'a> {
                     return UpdateState::Remove;
                 }
 
-                // let frame = Boar_SPLAT.animation_sprite(offset);
-                // let sprite = controller.sprite(frame);
-                //
-                // self.enemy_info.entity.sprite.set_sprite(sprite);
+                let frame = BOAR_HIT_ANIMATION.animation_sprite(offset);
+                let sprite = controller.sprite(frame);
+
+                self.enemy_info.entity.sprite.set_sprite(sprite);
             }
         }
 

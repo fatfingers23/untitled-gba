@@ -128,6 +128,7 @@ impl<'a, 'b> PlayingLevel<'a, 'b> {
                 controller,
                 self.background.level,
                 self.player.warrior.position,
+                &self.player.action,
                 self.timer,
             ) {
                 enemies::EnemyUpdateState::KillPlayer => player_dead = true,
