@@ -1,7 +1,8 @@
 use crate::entities::entity::Entity;
 use crate::level::Level;
 use crate::sprites::{
-    WARRIOR_IDLE, WARRIOR_IDLE_ANIMATION, WARRIOR_JUMP_ANIMATION, WARRIOR_RUN_ANIMATION,
+    WARRIOR_ATTACK_ANIMATION, WARRIOR_IDLE, WARRIOR_IDLE_ANIMATION, WARRIOR_JUMP_ANIMATION,
+    WARRIOR_RUN_ANIMATION,
 };
 use crate::types::FixedNumberType;
 use agb::display::object::OamManaged;
@@ -20,6 +21,8 @@ pub struct Player<'a> {
     pub facing: input::Tri,
     pub last_idle_frame: i32,
     pub has_double_jumped: bool,
+    pub attacking: bool,
+    pub times_last_attack_frame_displayed: i32,
 }
 
 impl<'a> Player<'a> {
@@ -41,6 +44,8 @@ impl<'a> Player<'a> {
             facing: input::Tri::Zero,
             last_idle_frame: 0,
             has_double_jumped: false,
+            attacking: false,
+            times_last_attack_frame_displayed: 0,
         }
     }
 
@@ -182,6 +187,7 @@ impl<'a> Player<'a> {
         //         _ => (0, 8).into(),
         //     };
         //
+
         match self.facing {
             agb::input::Tri::Negative => {
                 self.warrior.sprite.set_hflip(true);
@@ -190,6 +196,35 @@ impl<'a> Player<'a> {
                 self.warrior.sprite.set_hflip(false);
             }
             _ => {}
+        }
+
+        //Attack
+        if input.is_just_pressed(Button::B) {
+            if !self.attacking {
+                if self.facing == agb::input::Tri::Positive {
+                    self.warrior.position = self.warrior.position - (15, 0).into();
+                }
+            }
+            self.attacking = true;
+        }
+
+        if self.attacking {
+            let offset = (timer / 16) as usize;
+            let animation_length = WARRIOR_ATTACK_ANIMATION.sprites().len();
+            let animation_frame = offset % animation_length;
+
+            if animation_frame + 1 >= animation_length {
+                self.times_last_attack_frame_displayed += 1;
+
+                //Delay to show last frame a few extra times
+                if self.times_last_attack_frame_displayed > 2 {
+                    self.attacking = false;
+                    self.times_last_attack_frame_displayed = 0;
+                    self.warrior.position = self.warrior.position + (15, 0).into();
+                }
+            }
+            self.new_attack_frame(controller, animation_frame);
+            any_movement = true;
         }
         //
         //     match self.hat_state {
@@ -271,6 +306,12 @@ impl<'a> Player<'a> {
     fn new_idle_frame(&mut self, controller: &'a OamManaged, timer: i32) {
         let offset = (timer / 32) as usize;
         let frame = WARRIOR_IDLE_ANIMATION.animation_sprite(offset);
+        let sprite = controller.sprite(frame);
+        self.warrior.sprite.set_sprite(sprite);
+    }
+
+    fn new_attack_frame(&mut self, controller: &'a OamManaged, frame_number: usize) {
+        let frame = WARRIOR_ATTACK_ANIMATION.animation_sprite(frame_number);
         let sprite = controller.sprite(frame);
         self.warrior.sprite.set_sprite(sprite);
     }
