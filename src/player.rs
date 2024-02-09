@@ -60,7 +60,8 @@ impl<'a> Player<'a> {
         warrior
             .sprite
             .set_sprite(controller.sprite(WARRIOR_IDLE.sprites().first().unwrap()));
-        warrior.position = start_position + (0, -7).into();
+        // warrior.position = start_position + (0, -7).into();
+        warrior.position = (0, 100).into();
 
         Player {
             warrior,
