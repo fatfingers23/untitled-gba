@@ -23,6 +23,7 @@ pub struct Player<'a> {
     pub has_double_jumped: bool,
     pub attacking: bool,
     pub times_last_attack_frame_displayed: i32,
+    pub sprite_off_set: Vector2D<FixedNumberType>,
 }
 
 impl<'a> Player<'a> {
@@ -46,6 +47,7 @@ impl<'a> Player<'a> {
             has_double_jumped: false,
             attacking: false,
             times_last_attack_frame_displayed: 0,
+            sprite_off_set: (0, 0).into(),
         }
     }
 
@@ -202,14 +204,15 @@ impl<'a> Player<'a> {
         if input.is_just_pressed(Button::B) {
             if !self.attacking {
                 if self.facing == agb::input::Tri::Positive {
-                    self.warrior.position = self.warrior.position - (15, 0).into();
+                    self.sprite_off_set = (-16, 0).into();
+                    // self.warrior.position = self.warrior.position - (16, 0).into();
                 }
             }
             self.attacking = true;
         }
 
         if self.attacking {
-            let offset = (timer / 16) as usize;
+            let offset = (timer / 12) as usize;
             let animation_length = WARRIOR_ATTACK_ANIMATION.sprites().len();
             let animation_frame = offset % animation_length;
 
@@ -220,7 +223,10 @@ impl<'a> Player<'a> {
                 if self.times_last_attack_frame_displayed > 2 {
                     self.attacking = false;
                     self.times_last_attack_frame_displayed = 0;
-                    self.warrior.position = self.warrior.position + (15, 0).into();
+                    if self.facing == agb::input::Tri::Positive {
+                        self.sprite_off_set = (0, 0).into();
+                        // self.warrior.position = self.warrior.position + (16, 0).into();
+                    }
                 }
             }
             self.new_attack_frame(controller, animation_frame);

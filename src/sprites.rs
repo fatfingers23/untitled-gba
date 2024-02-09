@@ -15,5 +15,5 @@ pub const WARRIOR_DEAD_START_ANIMATION: &Tag = WARRIOR_DEAD_START.tags().get("de
 pub const WARRIOR_DEAD_END: &Graphics = agb::include_aseprite!("gfx/warrior/DeadEnd.aseprite");
 pub const WARRIOR_DEAD_END_ANIMATION: &Tag = WARRIOR_DEAD_END.tags().get("dead");
 
-pub const WARRIOR_ATTACK: &Graphics = agb::include_aseprite!("gfx/warrior/Attack.aseprite");
+pub const WARRIOR_ATTACK: &Graphics = agb::include_aseprite!("gfx/warrior/AttackStart.aseprite");
 pub const WARRIOR_ATTACK_ANIMATION: &Tag = WARRIOR_ATTACK.tags().get("attack");

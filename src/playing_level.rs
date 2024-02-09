@@ -150,7 +150,7 @@ impl<'a, 'b> PlayingLevel<'a, 'b> {
 
         self.player
             .warrior
-            .commit_position(self.background.position);
+            .commit_position(self.background.position - self.player.sprite_off_set);
 
         // self.player.hat.commit_position(self.background.position);
 
