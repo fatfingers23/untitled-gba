@@ -1,5 +1,6 @@
 use crate::entities::entity::Entity;
 use crate::level::Level;
+use crate::player::Action::DoubleJump;
 use crate::sprites::{
     WARRIOR_ATTACK_ANIMATION, WARRIOR_IDLE, WARRIOR_IDLE_ANIMATION, WARRIOR_JUMP_ANIMATION,
     WARRIOR_RUN_ANIMATION,
@@ -12,6 +13,7 @@ use agb::{input, println};
 
 const X_VELOCITY: i32 = 2;
 
+#[derive(Debug, PartialEq)]
 pub enum Action {
     Idle,
     Run,
@@ -29,8 +31,6 @@ pub struct Player<'a> {
     pub is_on_ground: bool,
     pub facing: input::Tri,
     pub last_idle_frame: i32,
-    pub has_double_jumped: bool,
-    pub attacking: bool,
     pub times_last_attack_frame_displayed: i32,
     pub sprite_off_set: Vector2D<FixedNumberType>,
     pub action: Action,
@@ -54,8 +54,6 @@ impl<'a> Player<'a> {
             is_on_ground: true,
             facing: input::Tri::Zero,
             last_idle_frame: 0,
-            has_double_jumped: false,
-            attacking: false,
             times_last_attack_frame_displayed: 0,
             sprite_off_set: (0, 0).into(),
             action: Action::Idle,
@@ -112,7 +110,7 @@ impl<'a> Player<'a> {
             .warrior
             .collision_at_point(level, self.warrior.position + (0, 1).into());
         if is_on_ground && !was_on_ground && self.warrior.velocity.y > 1.into() {
-            self.has_double_jumped = false;
+            self.action = Action::Idle;
         }
         self.is_on_ground = is_on_ground;
 
@@ -130,10 +128,10 @@ impl<'a> Player<'a> {
             }
         } else {
             //Double jump
-            if !self.has_double_jumped {
+            if self.action != Action::DoubleJump {
                 if input.is_just_pressed(Button::A) {
                     self.warrior.velocity.y = -FixedNumberType::new(3) / 2;
-                    self.has_double_jumped = true;
+                    self.action = DoubleJump;
                     any_movement = true;
                 }
             }
@@ -153,8 +151,11 @@ impl<'a> Player<'a> {
             any_movement = true;
             let frame = WARRIOR_RUN_ANIMATION.animation_sprite(offset);
             let sprite = controller.sprite(frame);
-            if !self.attacking {
+            if self.action != Action::Attack {
                 self.warrior.sprite.set_sprite(sprite);
+            }
+            if self.action == Action::Idle {
+                self.action = Action::Run;
             }
         }
         //
@@ -164,7 +165,7 @@ impl<'a> Player<'a> {
             let offset = (timer / 16) as usize;
             let frame = WARRIOR_JUMP_ANIMATION.animation_sprite(offset);
             let sprite = controller.sprite(frame);
-            if !self.attacking {
+            if self.action != Action::Attack {
                 self.warrior.sprite.set_sprite(sprite);
             }
         } else if self.warrior.velocity.y > FixedNumberType::new(1) / 16 {
@@ -214,17 +215,16 @@ impl<'a> Player<'a> {
 
         //Attack
         if input.is_just_pressed(Button::B) && self.is_on_ground {
-            if !self.attacking {
-                self.action = Action::Attack;
+            if self.action != Action::Attack {
                 if self.facing == agb::input::Tri::Positive {
                     self.sprite_off_set = (-16, 0).into();
                     // self.warrior.position = self.warrior.position - (16, 0).into();
                 }
             }
-            self.attacking = true;
+            self.action = Action::Attack;
         }
 
-        if self.attacking {
+        if self.action == Action::Attack {
             let offset = (timer / 16) as usize;
             let animation_length = WARRIOR_ATTACK_ANIMATION.sprites().len();
             let animation_frame = offset % animation_length;
@@ -234,89 +234,17 @@ impl<'a> Player<'a> {
 
                 //Delay to show last frame a few extra times
                 if self.times_last_attack_frame_displayed > 2 {
-                    self.attacking = false;
+                    self.action = Action::Idle;
                     self.times_last_attack_frame_displayed = 0;
                     if self.facing == agb::input::Tri::Positive {
                         self.sprite_off_set = (0, 0).into();
-                        // self.warrior.position = self.warrior.position + (16, 0).into();
                     }
                 }
             }
             self.new_attack_frame(controller, animation_frame);
             any_movement = true;
         }
-        //
-        //     match self.hat_state {
-        //         HatState::Thrown => {
-        //             // hat is thrown, make hat move towards warrior
-        //             let distance_vector =
-        //                 self.warrior.position - self.hat.position - hat_resting_position;
-        //             let distance = distance_vector.magnitude();
-        //             let direction = if distance == 0.into() {
-        //                 (0, 0).into()
-        //             } else {
-        //                 distance_vector / distance
-        //             };
-        //
-        //             let hat_sprite_divider = match self.num_recalls {
-        //                 0 => 1,
-        //                 1 => 2,
-        //                 _ => 4,
-        //             };
-        //
-        //             let hat_sprite_offset = (timer / hat_sprite_divider) as usize;
-        //
-        //             self.hat.sprite.set_sprite(
-        //                 controller.sprite(hat_base_tile.animation_sprite(hat_sprite_offset)),
-        //             );
-        //
-        //             if self.hat_slow_counter < 30 && self.hat.velocity.magnitude() < 2.into() {
-        //                 self.hat.velocity = (0, 0).into();
-        //                 self.hat_slow_counter += 1;
-        //             } else {
-        //                 self.hat.velocity += direction / 4;
-        //             }
-        //             let (new_velocity, enemy_collision) =
-        //                 self.hat.update_position_with_enemy(level, enemies);
-        //             self.hat.velocity = new_velocity;
-        //
-        //             if enemy_collision {
-        //                 sfx_player.snail_hat_bounce();
-        //             }
-        //
-        //             if distance > 16.into() {
-        //                 self.hat_left_range = true;
-        //             }
-        //             if self.hat_left_range && distance < 16.into() {
-        //                 sfx_player.catch();
-        //                 self.hat_state = HatState::OnHead;
-        //             }
-        //         }
-        //         HatState::OnHead => {
-        //             // hat is on head, place hat on head
-        //             self.hat_slow_counter = 0;
-        //             self.hat_left_range = false;
-        //             self.hat.position = self.warrior.position - hat_resting_position;
-        //         }
-        //         HatState::warriorTowards => {
-        //             self.hat.sprite.set_sprite(
-        //                 controller.sprite(hat_base_tile.animation_sprite(timer as usize / 2)),
-        //             );
-        //             let distance_vector =
-        //                 self.hat.position - self.warrior.position + hat_resting_position;
-        //             let distance = distance_vector.magnitude();
-        //             if distance != 0.into() {
-        //                 let v = self.warrior.velocity.magnitude() + 1;
-        //                 self.warrior.velocity = distance_vector / distance * v;
-        //             }
-        //             self.warrior.velocity = self.warrior.update_position(level);
-        //             if distance < 16.into() {
-        //                 self.warrior.velocity /= 8;
-        //                 self.hat_state = HatState::OnHead;
-        //                 sfx_player.catch();
-        //             }
-        //         }
-        //     }
+
         if !any_movement && self.is_on_ground {
             self.action = Action::Idle;
             self.new_idle_frame(controller, timer);
