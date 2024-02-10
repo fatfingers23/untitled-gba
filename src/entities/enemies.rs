@@ -47,7 +47,7 @@ pub enum EnemyUpdateState {
 
 impl<'a> Enemy<'a> {
     pub fn new_boar(object: &'a OamManaged, start_pos: Vector2D<FixedNumberType>) -> Self {
-        Enemy::Boar(Boar::new(object, start_pos + (0, 1).into()))
+        Enemy::Boar(Boar::new(object, start_pos + (0, 0).into()))
     }
 
     // pub fn collides_with_hat(&self, position: Vector2D<FixedNumberType>) -> bool {
@@ -99,9 +99,10 @@ impl<'a> EnemyInfo<'a> {
         object: &'a OamManaged,
         start_pos: Vector2D<FixedNumberType>,
         collision: Vector2D<u16>,
+        offset: Option<Vector2D<i32>>,
     ) -> Self {
         let mut enemy_info = EnemyInfo {
-            entity: Entity::new(object, collision),
+            entity: Entity::new(object, collision, offset),
         };
         enemy_info.entity.position = start_pos;
         enemy_info
@@ -117,7 +118,7 @@ impl<'a> EnemyInfo<'a> {
             }
         }
         // println!("Enemy Velocity: {:?}", self.entity.velocity);
-        // self.entity.position = self.entity.position + self.entity.velocity;
+        self.entity.position = self.entity.position + self.entity.velocity;
         self.entity.update_position(level);
     }
 
@@ -140,7 +141,12 @@ pub struct Boar<'a> {
 impl<'a> Boar<'a> {
     fn new(object: &'a OamManaged, start_pos: Vector2D<FixedNumberType>) -> Self {
         let Boar = Boar {
-            enemy_info: EnemyInfo::new(object, start_pos, (28u16, 14u16).into()),
+            enemy_info: EnemyInfo::new(
+                object,
+                start_pos,
+                (28u16, 14u16).into(),
+                Some((0, -12).into()),
+            ),
             state: BoarState::Idle,
         };
 

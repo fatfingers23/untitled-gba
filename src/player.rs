@@ -100,7 +100,7 @@ pub struct Player<'a> {
 
 impl<'a> Player<'a> {
     pub fn new(controller: &'a OamManaged, start_position: Vector2D<FixedNumberType>) -> Self {
-        let mut warrior = Entity::new(controller, (16_u16, 16_u16).into());
+        let mut warrior = Entity::new(controller, (16_u16, 16_u16).into(), None);
         //
         warrior
             .sprite

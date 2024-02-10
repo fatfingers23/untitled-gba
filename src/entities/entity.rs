@@ -4,6 +4,7 @@ use crate::types::FixedNumberType;
 use agb::display::object::{OamManaged, Object};
 use agb::display::{Priority, HEIGHT, WIDTH};
 use agb::fixnum::Vector2D;
+use agb::println;
 
 pub struct Entity<'a> {
     pub sprite: Object<'a>,
@@ -11,10 +12,15 @@ pub struct Entity<'a> {
     pub position: Vector2D<FixedNumberType>,
     pub velocity: Vector2D<FixedNumberType>,
     pub collision_mask: Vector2D<u16>,
+    pub offset: Vector2D<i32>,
 }
 
 impl<'a> Entity<'a> {
-    pub fn new(object: &'a OamManaged, collision_mask: Vector2D<u16>) -> Self {
+    pub fn new(
+        object: &'a OamManaged,
+        collision_mask: Vector2D<u16>,
+        offset: Option<Vector2D<i32>>,
+    ) -> Self {
         let mut dummy_object = object.object_sprite(WARRIOR_IDLE.sprites().first().unwrap());
         dummy_object.set_priority(Priority::P1);
         Entity {
@@ -23,6 +29,7 @@ impl<'a> Entity<'a> {
             size: (16, 16).into(),
             position: (0, 0).into(),
             velocity: (0, 0).into(),
+            offset: offset.unwrap_or(Vector2D::new(0, 0)),
         }
     }
 
@@ -95,7 +102,6 @@ impl<'a> Entity<'a> {
         } else {
             self.position += self.binary_search_collision(level, (0, 1).into(), self.velocity.y);
         }
-
         self.position - old_position
     }
 
@@ -154,8 +160,9 @@ impl<'a> Entity<'a> {
         unit_vector * low
     }
 
-    pub fn commit_position(&mut self, offset: Vector2D<FixedNumberType>) {
-        let position = (self.position - offset).floor();
+    pub fn commit_position(&mut self, additional_offset: Vector2D<FixedNumberType>) {
+        let mut position = (self.position - additional_offset).floor();
+        let position = position - Vector2D::new(self.offset.x.into(), self.offset.y.into());
         self.sprite.set_position(position - self.size);
         if position.x < -self.size.x
             || position.x > WIDTH + self.size.x

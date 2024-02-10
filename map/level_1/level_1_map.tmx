@@ -57,7 +57,7 @@
   <object id="1" name="Player Start" type="Player Start" x="19.4833" y="104.207">
    <point/>
   </object>
-  <object id="6" name="Boar Spawn" type="Boar Spawn" x="88.1302" y="112.054">
+  <object id="6" name="Boar Spawn" type="Boar Spawn" x="87.206" y="104.264">
    <point/>
   </object>
   <object id="7" name="Enemy Stop" type="Enemy Stop" x="58.6086" y="103.995">
