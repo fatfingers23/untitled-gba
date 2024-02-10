@@ -15,6 +15,10 @@ pub const WARRIOR_IDLE_ANIMATION: &Tag = WARRIOR_IDLE.tags().get("idle");
 pub const WARRIOR_RUN: &Graphics = agb::include_aseprite!("gfx/warrior/Run.aseprite");
 pub const WARRIOR_RUN_ANIMATION: &Tag = WARRIOR_RUN.tags().get("running");
 
+pub const WARRIOR_RUN_ATTACK: &Graphics =
+    agb::include_aseprite!("gfx/warrior/RunningAttack.aseprite");
+pub const WARRIOR_RUN_ATTACK_ANIMATION: &Tag = WARRIOR_RUN_ATTACK.tags().get("attack");
+
 pub const WARRIOR_JUMP: &Graphics = agb::include_aseprite!("gfx/warrior/Jump.aseprite");
 pub const WARRIOR_JUMP_ANIMATION: &Tag = WARRIOR_JUMP.tags().get("Loop");
 
@@ -37,6 +41,47 @@ pub enum PlayerAction {
     Attack,
 }
 
+pub struct AttackState {
+    pub attack_frame: usize,
+    pub times_last_attack_frame_displayed: i32,
+    pub animation_done: bool,
+    pub was_running: bool,
+}
+
+impl AttackState {
+    pub fn new() -> Self {
+        AttackState {
+            attack_frame: 0,
+            times_last_attack_frame_displayed: 0,
+            animation_done: false,
+            was_running: false,
+        }
+    }
+
+    pub fn increment_attack_frame(&mut self) {
+        let attack_sprite_len = WARRIOR_ATTACK_ANIMATION.sprites().len();
+        let times_to_show_frame = 4;
+
+        //Has already shown the attack frame max time so move to next frame
+        if self.times_last_attack_frame_displayed >= times_to_show_frame {
+            //IF it's the last frame then reset to 0
+            if self.attack_frame + 1 > attack_sprite_len {
+                //todo reset function
+                self.attack_frame = 0;
+                self.animation_done = true;
+                self.times_last_attack_frame_displayed = 0;
+            } else {
+                //Still more to go
+                self.attack_frame += 1;
+            }
+            self.times_last_attack_frame_displayed = 0;
+        } else {
+            //Still can show this frame a few more times
+            self.times_last_attack_frame_displayed += 1;
+        }
+    }
+}
+
 pub struct Player<'a> {
     pub warrior: Entity<'a>,
     pub hat_left_range: bool,
@@ -46,11 +91,11 @@ pub struct Player<'a> {
     pub is_on_ground: bool,
     pub facing: input::Tri,
     pub last_idle_frame: i32,
-    pub times_last_attack_frame_displayed: i32,
     /// Some sprites do not line up perfectly. Attack for instance does not
     /// this lets you control it a bit without changing the Player's position
     pub sprite_off_set: Vector2D<FixedNumberType>,
     pub action: PlayerAction,
+    pub attack_state: AttackState,
 }
 
 impl<'a> Player<'a> {
@@ -60,8 +105,7 @@ impl<'a> Player<'a> {
         warrior
             .sprite
             .set_sprite(controller.sprite(WARRIOR_IDLE.sprites().first().unwrap()));
-        // warrior.position = start_position + (0, -7).into();
-        warrior.position = (0, 100).into();
+        warrior.position = start_position + (0, -7).into();
 
         Player {
             warrior,
@@ -72,9 +116,9 @@ impl<'a> Player<'a> {
             is_on_ground: true,
             facing: input::Tri::Zero,
             last_idle_frame: 0,
-            times_last_attack_frame_displayed: 0,
             sprite_off_set: (0, 0).into(),
             action: PlayerAction::Idle,
+            attack_state: AttackState::new(),
         }
     }
 
@@ -230,27 +274,22 @@ impl<'a> Player<'a> {
                     // self.warrior.position = self.warrior.position - (16, 0).into();
                 }
             }
+
+            self.attack_state.was_running = self.action == PlayerAction::Run;
             self.action = PlayerAction::Attack;
         }
 
         if self.action == PlayerAction::Attack {
-            let offset = (timer / 16) as usize;
-            let animation_length = WARRIOR_ATTACK_ANIMATION.sprites().len();
-            let animation_frame = offset % animation_length;
-
-            if animation_frame + 1 >= animation_length {
-                self.times_last_attack_frame_displayed += 1;
-
-                //Delay to show last frame a few extra times
-                if self.times_last_attack_frame_displayed > 2 {
-                    self.action = PlayerAction::Idle;
-                    self.times_last_attack_frame_displayed = 0;
-                    if self.facing == agb::input::Tri::Positive {
-                        self.sprite_off_set = (0, 0).into();
-                    }
+            self.attack_state.increment_attack_frame();
+            if self.attack_state.animation_done {
+                //Reset to false or it never gets reset
+                self.attack_state.animation_done = false;
+                self.action = PlayerAction::Idle;
+                if self.facing == agb::input::Tri::Positive {
+                    self.sprite_off_set = (0, 0).into();
                 }
             }
-            self.new_attack_frame(controller, animation_frame);
+            self.new_attack_frame(controller);
         }
 
         if self.action == Idle && self.is_on_ground {
@@ -267,8 +306,12 @@ impl<'a> Player<'a> {
         self.warrior.sprite.set_sprite(sprite);
     }
 
-    fn new_attack_frame(&mut self, controller: &'a OamManaged, frame_number: usize) {
-        let frame = WARRIOR_ATTACK_ANIMATION.animation_sprite(frame_number);
+    fn new_attack_frame(&mut self, controller: &'a OamManaged) {
+        let frame = match self.attack_state.was_running {
+            true => WARRIOR_RUN_ATTACK_ANIMATION.animation_sprite(self.attack_state.attack_frame),
+            false => WARRIOR_ATTACK_ANIMATION.animation_sprite(self.attack_state.attack_frame),
+        };
+
         let sprite = controller.sprite(frame);
         self.warrior.sprite.set_sprite(sprite);
     }

@@ -167,10 +167,10 @@
     ],
     "project": "untitled-gba-game.tiled-project",
     "recentFiles": [
+        "level_1/level_1_map.tmx",
         "level_2/level_2_map.tmx",
         "level_2/level_2_foreground_tile_set.tsx",
         "level_2/level_2_background_tile_set.tsx",
-        "level_1/level_1_map.tmx",
         "/Users/baileytownsend/Documents/code/rust/agb/examples/the-hat-chooses-the-wizard/map/1-3.tmx",
         "/Users/baileytownsend/Documents/code/rust/agb/examples/the-hat-chooses-the-wizard/map/1-2.tmx",
         "level_1/level_1_background_tile_set.tsx",
