@@ -78,8 +78,8 @@
                  "type":"Player Start",
                  "visible":true,
                  "width":0,
-                 "x":19.7474,
-                 "y":111.6
+                 "x":19.4833491966254,
+                 "y":104.206577505512
                 }, 
                 {
                  "height":0,
@@ -90,8 +90,32 @@
                  "type":"Boar Spawn",
                  "visible":true,
                  "width":0,
-                 "x":92.6947693665857,
-                 "y":113.293607003605
+                 "x":88.1301509971679,
+                 "y":112.053549502924
+                }, 
+                {
+                 "height":0,
+                 "id":7,
+                 "name":"Enemy Stop",
+                 "point":true,
+                 "rotation":0,
+                 "type":"Enemy Stop",
+                 "visible":true,
+                 "width":0,
+                 "x":58.6085975624709,
+                 "y":103.995349248122
+                }, 
+                {
+                 "height":0,
+                 "id":9,
+                 "name":"Enemy Stop",
+                 "point":true,
+                 "rotation":0,
+                 "type":"Enemy Stop",
+                 "visible":true,
+                 "width":0,
+                 "x":108.200377231723,
+                 "y":104
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -100,7 +124,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":7,
+ "nextobjectid":10,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",

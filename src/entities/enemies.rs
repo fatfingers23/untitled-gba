@@ -6,6 +6,7 @@ use agb::display::object::Graphics;
 use agb::{
     display::object::{OamManaged, Tag},
     fixnum::Vector2D,
+    println,
 };
 
 pub const BOAR_IDLE: &Graphics = agb::include_aseprite!("gfx/boar/Idle.aseprite");
@@ -13,6 +14,9 @@ pub const BOAR_IDLE_ANIMATION: &Tag = BOAR_IDLE.tags().get("idle");
 
 pub const BOAR_HIT: &Graphics = agb::include_aseprite!("gfx/boar/Hit.aseprite");
 pub const BOAR_HIT_ANIMATION: &Tag = BOAR_HIT.tags().get("hit");
+
+pub const BOAR_RUN: &Graphics = agb::include_aseprite!("gfx/boar/Run.aseprite");
+pub const BOAR_RUN_ANIMATION: &Tag = BOAR_RUN.tags().get("run");
 
 // const SLIME_IDLE: &Tag = TAG_MAP.get("Slime Idle");
 // const SLIME_JUMP: &Tag = TAG_MAP.get("Slime Jump");
@@ -112,7 +116,8 @@ impl<'a> EnemyInfo<'a> {
                 self.entity.velocity = (0, 0).into();
             }
         }
-
+        // println!("Enemy Velocity: {:?}", self.entity.velocity);
+        // self.entity.position = self.entity.position + self.entity.velocity;
         self.entity.update_position(level);
     }
 
@@ -123,7 +128,7 @@ impl<'a> EnemyInfo<'a> {
 
 enum BoarState {
     Idle,
-    Jumping(i32), // the start frame of the jumping animation
+    Running(i32), // the start frame of the jumping animation
     Dying(i32),   // the start frame of the dying animation
 }
 
@@ -135,7 +140,7 @@ pub struct Boar<'a> {
 impl<'a> Boar<'a> {
     fn new(object: &'a OamManaged, start_pos: Vector2D<FixedNumberType>) -> Self {
         let Boar = Boar {
-            enemy_info: EnemyInfo::new(object, start_pos, (32u16, 16u16).into()),
+            enemy_info: EnemyInfo::new(object, start_pos, (28u16, 14u16).into()),
             state: BoarState::Idle,
         };
 
@@ -165,7 +170,7 @@ impl<'a> Boar<'a> {
                 if (self.enemy_info.entity.position - player_pos).magnitude_squared()
                     < (64 * 64).into()
                 {
-                    self.state = BoarState::Jumping(timer);
+                    self.state = BoarState::Running(timer);
 
                     let x_vel: FixedNumberType =
                         if self.enemy_info.entity.position.x > player_pos.x {
@@ -178,15 +183,15 @@ impl<'a> Boar<'a> {
                     self.enemy_info.entity.velocity = (x_vel / 4, 0.into()).into();
                 }
 
-                // if player_has_collided {
-                //     if hat_state == HatState::WizardTowards {
-                //         self.state = BoarState::Dying(timer);
-                //     } else {
-                //         return UpdateState::KillPlayer;
-                //     }
-                // }
+                if player_has_collided {
+                    if *player_action == PlayerAction::Attack {
+                        self.state = BoarState::Dying(timer);
+                    } else {
+                        return UpdateState::KillPlayer;
+                    }
+                }
             }
-            BoarState::Jumping(jumping_start_frame) => {
+            BoarState::Running(jumping_start_frame) => {
                 let offset = (timer - jumping_start_frame) as usize / 4;
 
                 if timer == jumping_start_frame + 1 {
@@ -197,10 +202,9 @@ impl<'a> Boar<'a> {
                     self.enemy_info.entity.velocity = (0, 0).into();
                     self.state = BoarState::Idle;
                 } else {
-                    // let frame = Boar_JUMP.animation_sprite(offset);
-                    // let sprite = controller.sprite(frame);
-                    //
-                    // self.enemy_info.entity.sprite.set_sprite(sprite);
+                    let frame = BOAR_RUN_ANIMATION.animation_sprite(offset);
+                    let sprite = controller.sprite(frame);
+                    self.enemy_info.entity.sprite.set_sprite(sprite);
                 }
 
                 if player_has_collided {

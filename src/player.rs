@@ -132,7 +132,7 @@ impl<'a> Player<'a> {
         //TODO not sure how to do a double dash. Maybe count a few 0s before -1 or 1
         //OR could just do longer. GUess i could do like holding down r or attack?
         let x = input.x_tri() as i32;
-        println!("Input x {x}");
+        // println!("Input x {x}");
 
         //     // throw or recall
         //     if input.is_just_pressed(Button::A) {

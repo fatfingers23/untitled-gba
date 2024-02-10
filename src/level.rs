@@ -1,5 +1,6 @@
 use agb::display::tiled::{TileSet, TileSetting};
 use agb::fixnum::Vector2D;
+use agb::println;
 
 pub mod map_tiles {
     use super::Level;
@@ -63,9 +64,10 @@ impl<'a> Level<'a> {
         }
         let foreground_collision = foreground_tile_property == tile;
 
-        // if background_collision {
-        //     println!("Background collision  ({}, {})", tile_background, tile);
-        // }
+        if background_collision {
+            println!("x: {}, y: {}", x, y);
+            println!("Background collision  ({}, {})", tile_background, tile);
+        }
         //
         // if foreground_collision {
         //     println!("Foreground collision  ({}, {})", tile_foreground, tile);
