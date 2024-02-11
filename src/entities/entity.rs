@@ -12,7 +12,8 @@ pub struct Entity<'a> {
     pub position: Vector2D<FixedNumberType>,
     pub velocity: Vector2D<FixedNumberType>,
     pub collision_mask: Vector2D<u16>,
-    pub offset: Vector2D<i32>,
+    ///Only applies to the sprite, not the collision mask or position
+    pub sprite_offset: Vector2D<i32>,
 }
 
 impl<'a> Entity<'a> {
@@ -29,7 +30,7 @@ impl<'a> Entity<'a> {
             size: (16, 16).into(),
             position: (0, 0).into(),
             velocity: (0, 0).into(),
-            offset: offset.unwrap_or(Vector2D::new(0, 0)),
+            sprite_offset: offset.unwrap_or(Vector2D::new(0, 0)),
         }
     }
 
@@ -162,7 +163,8 @@ impl<'a> Entity<'a> {
 
     pub fn commit_position(&mut self, additional_offset: Vector2D<FixedNumberType>) {
         let mut position = (self.position - additional_offset).floor();
-        let position = position - Vector2D::new(self.offset.x.into(), self.offset.y.into());
+        let position =
+            position - Vector2D::new(self.sprite_offset.x.into(), self.sprite_offset.y.into());
         self.sprite.set_position(position - self.size);
         if position.x < -self.size.x
             || position.x > WIDTH + self.size.x
